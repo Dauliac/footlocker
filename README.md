@@ -2,6 +2,14 @@
 
 my personal i3lock fork fork.
 
+## Dependencies
+
+first install :
+
+- i3lock-color
+- scrot
+- imagemagick
+
 ## Installation
 
 git clone and move footlocker in `/usr/bin/footlocker`
