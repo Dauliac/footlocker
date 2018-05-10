@@ -27,12 +27,11 @@ mv footlocker /usr/bin/footlocker
 simply :
 
 ```bash
-footlocker
+footlocker --text toto -b 0x4
 ```
 
 ## Future features
 
-- Parameters
 - colored square behind the hour
 - icon page center
 - widgets

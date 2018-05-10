@@ -11,8 +11,6 @@ check_integrity() {
 }
 
 lock() {
-    #$1 image path
-    # letterEnteredColor=d23c3dff
     letterEnteredColor=98971aff
     letterRemovedColor=fabd2fff
     passwordCorrect=00000000
@@ -22,16 +20,29 @@ lock() {
     tmp_bg_f='/tmp/i3lock/'
     tmp_bg='lock.png'
     l_img="${tmp_bg_f}${tmp_bg}"
+
     if [ ! -d $tmp_bg_f ];then
         mkdir "${tmp_bg_f}"
     fi
-    scrot "${l_img}"
-    convert "${l_img}" -blur "0x4" -fill black -colorize 15% "${l_img}"
+    if [ -z $AUTOBG ]; then
+        scrot "${l_img}"
+    else
+        cp -f $AUTOBG $l_img
+    fi
+    
+    if [ -z $BLUR ]; then
+        BLUR="0x5"
+    fi
+
+    if [ -z $TEXT ]; then
+        TEXT="Type password to unlock..."
+    fi
+    convert "${l_img}" -blur $BLUR -fill black -colorize 15% "${l_img}"
     i3lock \
         -t -i "${l_img}" \
         --timepos="110:h-70" \
         --datepos="135:h-45" \
-        --clock --datestr "Type password to unlock..." \
+        --clock --datestr "${TEXT}" \
         --insidecolor=$background --ringcolor=$foreground --line-uses-inside \
         --keyhlcolor=$letterEnteredColor --bshlcolor=$letterRemovedColor --separatorcolor=$background \
         --insidevercolor=$passwordCorrect --insidewrongcolor=$passwordIncorrect \
@@ -41,6 +52,34 @@ lock() {
         --noinputtext="" \
         --force-clock
 }
+
+helpmenu() {
+    echo "footlocker [param [options]] \n
+    -t | --text <text>    : displayed text \n
+    -b | --blur <0xN>     : blur effect, N is an int \n
+    -p | --picture <path> : give picture to display"
+}
+
 check_integrity
+
+while [ ! $# -eq 0 ]
+do
+	case "$1" in
+		--picture | -p)
+		    AUTOBG=$2
+			;;
+		--blur | -b)
+			BLUR=$2
+			;;
+        --text | -t)
+            TEXT=$2
+            ;;
+        --help | -h)
+            helpmenu
+            exit
+            ;;
+	esac
+	shift
+done
 lock
-exit 0
+exit
