@@ -4,7 +4,7 @@ dependencies="i3lock scrot convert"
 check_integrity() {
     for requirement in ${dependencies} ; do
         command -v ${requirement} >/dev/null 2>&1 || {
-            echo "[ERROR] missing ${requirement}" >&2; 
+            echo "[ERROR] missing ${requirement}" >&2;
         exit 1; }
 
     done
@@ -29,7 +29,7 @@ lock() {
     else
         cp -f $AUTOBG $l_img
     fi
-    
+
     if [ -z $BLUR ]; then
         BLUR="0x5"
     fi
@@ -55,31 +55,52 @@ lock() {
 
 helpmenu() {
     echo "footlocker [param [options]] \n
-    -t | --text <text>    : displayed text \n
-    -b | --blur <0xN>     : blur effect, N is an int \n
-    -p | --picture <path> : give picture to display"
+    -t | --text <text>        : displayed text \n
+    -b | --blur <0xN>         : blur effect, N is an int \n
+    -p | --picture <path>     : give picture to display
+    -s | --suspend <cooldown> : cooldown to suspend (it is /2.5 in low power)
+    -h | --hibernate <cooldown> : cooldown to hibernate (it is /2.5 in low power)"
 }
 
 check_integrity
 
 while [ ! $# -eq 0 ]
 do
-	case "$1" in
-		--picture | -p)
-		    AUTOBG=$2
-			;;
-		--blur | -b)
-			BLUR=$2
-			;;
+    case "$1" in
+        --picture | -p)
+            AUTOBG=$2
+            ;;
+        --blur | -b)
+            BLUR=$2
+            ;;
         --text | -t)
             TEXT=$2
             ;;
-        --help | -h)
+        --suspend | -s)
+            SUSPEND=$2
+            ;;
+        --hibernate | -h)
+            HIBERNATE=$2
+            ;;
+        --help)
             helpmenu
             exit
             ;;
-	esac
-	shift
+    esac
+    shift
 done
+
 lock
+
+if [ -z $SUSPEND ]; then
+    SUSPEND=2m
+fi
+sleep $SUSPEND
+systemctl suspend
+if [ -z $HIBERNATE ]; then
+    HIBERNATE=10m
+fi
+sleep $HIBERNATE
+systemctl hibernate
+
 exit
